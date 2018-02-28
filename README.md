@@ -2,11 +2,13 @@
 ## Prerequisites
 * [Install Go](https://golang.org/doc/install) on your local machine.
 * We reccomend [VSCode](https://code.visualstudio.com/) as Editor for development with this Go [plugin](https://code.visualstudio.com/docs/languages/go) correctly installed.
+
 ## Compile the chaincode
 * `go get -u --tags nopkcs11 github.com/hyperledger/fabric/core/chaincode/shim`
 * `go build --tags nopkcs11`
+
 ## Test the chaincode (Hyperledger Fabric Peer dev mode)
-1. Download [Hyperledger Fabric Samples](https://hyperledger-fabric.readthedocs.io/en/latest/samples.html) <br/>
+1. Download [Hyperledger Fabric Samples](https://hyperledger-fabric.readthedocs.io/en/latest/samples.html)
 2. Open a Terminal in your machine:
   1. `cd fabric-samples`
   2. `cd chaincode && git clone https://github.com/ascatox/product-unit-hub-chaincode.git`
