@@ -8,7 +8,7 @@
 ## Test the chaincode (Hyperledger Fabric Peer dev mode)
 1. Download [Hyperledger Fabric Samples](https://hyperledger-fabric.readthedocs.io/en/latest/samples.html) <br/>
 2. Open a Terminal in your machine:
-  2. 1. `cd fabric-samples`
+  1. `cd fabric-samples`
   2. `cd chaincode && git clone https://github.com/ascatox/product-unit-hub-chaincode.git`
   3. `cd ../chaincode-docker-devmode && chmod +x script.sh`
   4. `docker-compose -f docker-compose-simple.yaml up -d` (Stop the network using: `docker-compose -f docker-compose-simple.yaml down`)
