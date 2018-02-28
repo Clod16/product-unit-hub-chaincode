@@ -6,7 +6,7 @@
 ## Compile the chaincode
 * `go get -u --tags nopkcs11 github.com/hyperledger/fabric/core/chaincode/shim`
 * `go build --tags nopkcs11`
-## Test the chaincode (Hyperledger Fabric Peer dev mode)
+## Test the chaincode (Hyperledger Fabric Peer [dev mode](https://hyperledger-fabric.readthedocs.io/en/latest/chaincode4ade.html#testing-using-dev-mode))
 1. Download [Hyperledger Fabric Samples](https://hyperledger-fabric.readthedocs.io/en/latest/samples.html)
 2. Open a Terminal in your machine:
  - `cd fabric-samples`
