@@ -17,10 +17,10 @@ Open a Terminal in your machine:
 7. `CORE_PEER_ADDRESS=peer:7051 CORE_CHAINCODE_ID_NAME=productUnitHub:0 ./product-unit-hub-chaincode`
 
 Open a new Terminal in your machine:<br/>
-8. `docker exec -it cli bash`
-9. `peer chaincode install -p chaincodedev/chaincode/product-unit-hub-chaincode -n productUnitHub -v 0`
-10. `peer chaincode instantiate -n productUnitHub -v 0 -c '{"Args":["a","10"]}' -C myc`
-11. `peer chaincode invoke -n productUnitHub -c '{"Args":["set", "a", "20"]}' -C myc` or `peer chaincode query -n productUnitHub -c '{"Args":["query","a"]}' -C myc` (Beware change 'set' and parameters and 'query' and parameters with the functions inside your Go code)
+1. `docker exec -it cli bash`
+2. `peer chaincode install -p chaincodedev/chaincode/product-unit-hub-chaincode -n productUnitHub -v 0`
+3. `peer chaincode instantiate -n productUnitHub -v 0 -c '{"Args":["a","10"]}' -C myc`
+4. `peer chaincode invoke -n productUnitHub -c '{"Args":["set", "a", "20"]}' -C myc` or `peer chaincode query -n productUnitHub -c '{"Args":["query","a"]}' -C myc` (Beware change 'set' and parameters and 'query' and parameters with the functions inside your Go code)
 
 ## Troubleshooting
 If the `cli` docker service doesn't start correctly, execute the steps from 1st to 7th, then execute `docker restart cli`, now you can execute the other steps starting from the 8th step.
