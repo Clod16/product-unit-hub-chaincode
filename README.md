@@ -24,4 +24,3 @@ Open a new Terminal in your machine:
 
 ## Troubleshooting
 If the `cli` docker service doesn't start correctly, execute the steps from 1st to 7th, then execute `docker restart cli`, now you can execute the other steps starting from the 8th step.
-
