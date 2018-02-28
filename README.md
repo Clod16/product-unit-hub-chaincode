@@ -25,4 +25,4 @@
  - `peer chaincode invoke -n productUnitHub -c '{"Args":["set", "a", "20"]}' -C myc` or `peer chaincode query -n productUnitHub -c '{"Args":["query","a"]}' -C myc` (Beware change 'set' and parameters and 'query' and parameters with the functions inside your Go code)
 
 ## Troubleshooting
-If the `cli` docker service doesn't start correctly, execute the 1st series of step, then execute `docker restart cli`, now you can execute the other 2nd series of steps.
+If the `cli` docker service doesn't start correctly, execute the 2nd series of step, then execute `docker restart cli`, now you can execute the other 3rd series of steps.
