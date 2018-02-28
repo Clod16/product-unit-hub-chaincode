@@ -22,4 +22,3 @@ Open a new Terminal in your machine:
 3. `peer chaincode instantiate -n productUnitHub -v 0 -c '{"Args":["a","10"]}' -C mychannel`
 4. `peer chaincode invoke -n productUnitHub -c '{"Args":["set", "a", "20"]}' -C mychannel` or `peer chaincode query -n mycc -c '{"Args":["query","a"]}' -C mychannel` (Beware change 'set' and parameters and 'query' and parameters with the functions inside your Go code)
 
-
