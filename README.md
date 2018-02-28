@@ -16,7 +16,7 @@ Open a Terminal in your machine:
 6. `cd product-unit-hub-chaincode && go build`
 7. `CORE_PEER_ADDRESS=peer:7051 CORE_CHAINCODE_ID_NAME=productUnitHub:0 ./product-unit-hub-chaincode`
 
-Open a new Terminal in your machine: 
+Open a new Terminal in your machine:
 8. `docker exec -it cli bash`
 9. `peer chaincode install -p chaincodedev/chaincode/product-unit-hub-chaincode -n productUnitHub -v 0`
 10. `peer chaincode instantiate -n productUnitHub -v 0 -c '{"Args":["a","10"]}' -C myc`
