@@ -24,7 +24,7 @@
  - `peer chaincode invoke -n productUnitHub -c '{"Args":["set", "a", "20"]}' -C myc` or `peer chaincode query -n productUnitHub -c '{"Args":["query","a"]}' -C myc` (Beware change 'set' and parameters and 'query' and parameters with the functions inside your Go code)
 
 ## Edit the chaincode
-Edit the chaincode [Go file](https://github.com/ascatox/product-unit-hub-chaincode/blob/master/productUnitHub.go) under the folder `fabric-samples/chaincode/product-unit-hub-chaincode`.
+Edit the chaincode [Go file](https://github.com/ascatox/product-unit-hub-chaincode/blob/master/productUnitHub.go) in your **local machine** under the folder `fabric-samples/chaincode/product-unit-hub-chaincode`.
 
 ## Troubleshooting
 If the `cli` docker service doesn't start correctly, execute the 2nd series of step, then execute `docker restart cli`, now you can execute the other 3rd series of steps.
