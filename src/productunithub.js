@@ -58,21 +58,25 @@ var Chaincode = class {
 		/* methods GET */
 
 		if (fcn === 'getProcessStepRouting') {
-			return this.getProcessSteps(stub, args);
+			return this.getProcessStepRouting(stub, args);
 		}
 
-		if (fcn === 'retrieveProcessStep') {
+		if (fcn === 'getProcessStep') {
 			return this.getProcessStep(stub, args);
+		}
+
+		if (fcn === 'getProcessStepResult') {
+			return this.getProcessStepResult(stub, args);
 		}
 
 		/* methods POST */
 
 		if (fcn === 'storeProcessStepRouting') {
-			return this.storeProcessSteps(stub, args);
+			return this.storeProcessStepRouting(stub, args);
 		}
 
 		if (fcn === 'storeProcessStepResult') {
-			return this.storeProcessStepResults(stub, args);
+			return this.storeProcessStepResult(stub, args);
 		}
 		/* methods NOT FOUND */
 		logger.Errorf(`Unknown action, check the first argument, must be one of 'getProcessStepRouting', 'retrieveProcessStep', 'storeProcessStepRouting' or 'storeProcessStepResult'. But got: ${fcn}`);
@@ -80,10 +84,10 @@ var Chaincode = class {
 	}
 
 	/* methods GET */
-	/* getProcessSteps(component, subComponent) */
-	/* The getProcessSteps method is called to extract all chassisDTOs by Component and subComponent */ 
+	/* getProcessStepRouting(component, subComponent) */
+	/* The getProcessStepRouting method is called to extract all chassisDTOs by Component and subComponent */ 
  
-	async getProcessSteps(stub, args) {
+	async getProcessStepRouting(stub, args) {
 		if (args.length != 2) {
 			return shim.error('Incorrect number of arguments. Expecting 2, function followed by JSON parameters');
 		}
@@ -99,10 +103,8 @@ var Chaincode = class {
 		return shim.success(Buffer.from(listOfChassisDTO.toString()));
 	}
 
-	/* getProcessStep(chassisId, component, subComponent) */
-	/* The getProcessStep method is called to extract the chassisDTO by chassisId, Component and subComponent */
 
-
+/*
 	async getQueryResult(stub, component, subComponent) {
 
         const query = {
@@ -114,40 +116,94 @@ var Chaincode = class {
  
         return await stub.getQueryResult(query);
 	}
+*/ 
 
 
+	/* getProcessStep(chassisId, component, subComponent, workCellResourceId) */
+	/* The getProcessStep method is called to extract the chassisDTO by chassisId, component, subComponent and workCellResourceId (eventually) */
 
 	async getProcessStep(stub, args) {
-		if (args.length != 3) {
-			return shim.error('Incorrect number of arguments. Expecting 3, function followed by JSON parameters');
+		if (args.length < 3 || args.length > 4) {
+			return shim.error('Incorrect number of arguments. Expecting 3 or 4, function followed by JSON parameters');
 		}
-
-		/* TODO Key is composed by: component_subComponent_chassisId */
-		const key = args[2] + "_" + args[1] + "_" + args[0];
-		let   chassisDTO;
-		
-		// Get the state from the ledger
-		try {
-			let chassisDTObytes = await stub.getState(key);
-			if (!chassisDTObytes) {
-				return shim.error('chassisDTO ' + key + ' not found');
+		let jsonResp; 
+		/* Key is composed by: chassisId_component_subComponent_workCellResourceId */
+		if (args[3]) {
+			const key = args[0] + "_" + args[1] + "_" + args[2]+ "_" + args[3];
+			let   chassisDTO;
+			
+			// Get the state from the ledger
+			try {
+				let chassisDTObytes = await stub.getState(key);
+				if (!chassisDTObytes) {
+					return shim.error('chassisDTO ' + key + ' not found');
+				}
+				chassisDTO = chassisDTObytes.toString();
+			} catch (e) {
+				return shim.error('Failed to get state with key: ' + key);
 			}
-			chassisDTO = chassisDTObytes.toString();
-		} catch (e) {
-			return shim.error('Failed to get state with key: ' + key);
+			jsonResp = chassisDTO;
 		}
-
-		let jsonResp = chassisDTO;
+		else {
+			/* Key partial is composed by: chassisId_component_subComponent */
+			const keyPar 			=  args[0] + "_" + args[1] + "_" + args[2];
+			const iterator 			= await this.stub.getStateByPartialCompositeKey("",keyPar);
+			const listOfChassisDTO 	= datatransform.Transform.iteratorToKVList(iterator);
+			if (!listOfChassisDTO) {
+				return shim.error('listOfChassisDTO ' + keyPar + ' not found');
+			}
+			jsonResp = listOfChassisDTO;
+		}
+		
 		logger.info('Query Response:%s\n', JSON.stringify(jsonResp));
-
 		return shim.success(Buffer.from(chassisDTO.toString()));
+	}
+
+		/* getProcessStepResult(chassisId, component, subComponent, workCellResourceId) */
+	/* The getProcessStepResult method is called to extract the chassisDTO by chassisId, component, subComponent and workCellResourceId (eventually) */
+
+	async getProcessStepResult(stub, args) {
+		if (args.length < 3 || args.length > 4) {
+			return shim.error('Incorrect number of arguments. Expecting 3 or 4, function followed by JSON parameters');
+		}
+		let jsonResp; 
+		/* Key is composed by: chassisId_component_subComponent_workCellResourceId */
+		if (args[3]) {
+			const key = args[0] + "_" + args[1] + "_" + args[2]+ "_" + args[3];
+			let   processStepResultDTO;
+			
+			// Get the state from the ledger
+			try {
+				let processStepResultDTObytes = await stub.getState(key);
+				if (!processStepResultDTObytes) {
+					return shim.error('processStepResultDTO ' + key + ' not found');
+				}
+				processStepResultDTO = processStepResultDTObytes.toString();
+			} catch (e) {
+				return shim.error('Failed to get state with key: ' + key);
+			}
+			jsonResp = processStepResultDTO;
+		}
+		else {
+			/* Key partial is composed by: component_subComponent_chassisId */
+			const keyPar 						=  args[0] + "_" + args[1] + "_" + args[2];
+			const iterator 						= await this.stub.getStateByPartialCompositeKey("",keyPar);
+			const listOfProcessStepResultDTO 	= datatransform.Transform.iteratorToKVList(iterator);
+			if (!listOfProcessStepResultDTObytes) {
+				return shim.error('listOfProcessStepResultDTO ' + key + ' not found');
+			}
+			jsonResp = listOfProcessStepResultDTO;
+		}
+		
+		logger.info('Query Response:%s\n', JSON.stringify(jsonResp));
+		return shim.success(Buffer.from(processStepResultDTO.toString()));
 	}
 
 	/* methods POST */
 	/* storeProcessSteps(component, subComponent) */
 	/* The storeProcessSteps method is called to store all chassisDTOs with Component and subComponent */ 
 
-	async storeProcessSteps(stub, args) {
+	async storeProcessStepRouting(stub, args) {
 
 		let processStepsContainer;
 
@@ -171,10 +227,10 @@ var Chaincode = class {
 				chassisDTO.chassiId           = value.ChassisId;	
 				chassisDTO.component          = value.Component;
 				chassisDTO.subComponent       = value.SubComponent;
-				chassisDTO.productUnits       = value.ProductUnits;
-				chassisDTO.BillOfProcessSteps = value.BillOfProcessSteps;	
+				chassisDTO.productUnits 	  = value.ProductUnits;
+				chassisDTO.billOfProcessSteps = value.BillOfProcessSteps;	
 
-				const key = generateKey(stub, chassisDTO.component,chassisDTO.subComponent,chassisDTO.chassiId);
+				const key = generateKey(stub, chassisDTO.component,chassisDTO.subComponent,chassisDTO.chassiId,chassisDTO.productUnits);
 				// Write the state to the ledger
 				try {
 					await stub.putState(key, Buffer.from(chassisDTO.toString()));
@@ -203,17 +259,17 @@ var Chaincode = class {
 		}
 	}
 
-	/* getProcessStepResult(chassisId, component, subComponent) */
+	/* storeProcessStepResult(chassisId, component, subComponent, processStepResult) */
 	/* The storeProcessStepResults method is called to update the chassisDTO (in the part of Results) with chassisId, Component and subComponent */ 
 	
-	async storeProcessStepResults(stub, args) {
-		let processStepResultsContainer;
+	async storeProcessStepResult(stub, args) {
+		let processStepResultContainer;
 
 		/* TODO parameter args[0] is composed by: 
-		{ChassisId: chassisId,
-		 Component: component,
-		 SubComponent: subComponent,
-		 ProductUnits: productUnits, 
+		{Component         		 : component,
+		 SubComponent            : subComponent,
+		 ChassisId         		 : chassisId,
+		 WorkCellResourceId		 : workCellResourceId, 
 		 BillOfProcessStepResults: [ProcessStepResults]
 		} */
 		
@@ -222,55 +278,44 @@ var Chaincode = class {
 			return shim.error('Incorrect number of arguments. Expecting 1, function followed by JSON parameters');
 		}
 
-		let processStepResultsContainerSTR = args[0];	
+		let processStepResultContainerSTR = args[0];	
 
-		if(typeof processStepResultsContainerSTR == 'undefined' || processStepResultsContainerSTR == null) {
+		if(typeof processStepResultContainerSTR == 'undefined' || processStepResultContainerSTR == null) {
 			return shim.error('processStepResultsContainerSTR undefined or null');
 		}
 		try{
-			processStepResultsContainer = JSON.parse(processStepResultsContainerSTR);
-			if(typeof processStepResultsContainer == 'undefined' || 
-			   processStepResultsContainer == null || 
-			   typeof processStepResultsContainer != 'object') {
-			   return shim.error('processStepsContainer undefined or null or not object');
+			processStepResultDTO = JSON.parse(processStepResultContainerSTR);
+			if(typeof processStepResultDTO == 'undefined' || 
+			   processStepResultDTO == null || 
+			   typeof processStepResultDTO != 'object') {
+			   return shim.error('processStepDTO undefined or null or not object');
 			}
-			// Go to search the original chassisId to this set of ProcessStepResults
-			for (let value of processStepResultsContainer) {
-				let chassisDTO;
-				const key = generateKey(stub, value.Component,value.SubComponent,value.ChassiId);
-				try {			
-					let chassisDTObytes = await stub.getState(key);
-					if (!chassisDTObytes) {
-						return shim.error('chassisDTO ' + key + ' not found');
-					}
-					chassisDTO = chassisDTObytes.toString();
-					chassisDTO.BillOfProcessStepResults = value.ProcessStepResults;
-					
-				} catch (e) {
-					return shim.error('Failed to get state with key: ' + key);
+			try {
+				const key = generateKey(stub, 
+						processStepResultDTO.component,
+						processStepResultDTO.subComponent,
+						processStepResultDTO.chassiId,
+						processStepResultDTO.workCellResourceId);
+
+				await stub.putState(key, Buffer.from(processStepResultDTO.toString()));
+				
+				let tmap = stub.getTransient();
+				logger.info('Invoke move transient: ' + tmap);
+				//JavaSDK expect to see events and results in transient maps just to test the feature and no other reason.
+				if(tmap != null){
+				 let event = tmap.get("event");
+				 if(null != event){
+					stub.setEvent('event', event);
+				 }
+	
+				 let rb = tmap.get("result");
+				 logger.info('Invoke Process Step Result Store transient requested result: ' + rb);
+				 if( null != rb){
+				  return shim.success(rb);}
 				}
-				try {
-					// Write the state to the ledger
-					await stub.putState(key, Buffer.from(chassisDTO.toString()));
-					
-					let tmap = stub.getTransient();
-					logger.info('Invoke move transient: ' + tmap);
-					//JavaSDK expect to see events and results in transient maps just to test the feature and no other reason.
-					if(tmap != null){
-					 let event = tmap.get("event");
-					 if(null != event){
-						stub.setEvent('event', event);
-					 }
-		
-					 let rb = tmap.get("result");
-					 logger.info('Invoke Store Process Step Results transient requested result: ' + rb);
-					 if( null != rb){
-					  return shim.success(rb);}
-					}
-					return shim.success(Buffer.from('Store Process Step Results succeed'));
-				} catch (e) {
-					return shim.error(e);
-				}
+				return shim.success(Buffer.from('Process Step Result Store succeed'));
+			} catch (e) {
+				return shim.error(e);
 			}
 		} catch (e) {
 			return shim.error('Parse error found');
