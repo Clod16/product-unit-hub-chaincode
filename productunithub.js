@@ -17,7 +17,7 @@ limitations under the License.
 // This is a node-js version of example_02.go
 
 const shim          = require('fabric-shim');
-const datatransform = require("./datatransform");
+const datatransform = require("./utils/datatransform");
 
 // An log4js logger instance
 var logger = shim.newLogger('productUnitHub');
