@@ -1,18 +1,15 @@
 {
-    "name": "example_cc",
+    "name": "productunithub",
     "version": "1.0.0",
     "description": "",
-    "main": "chaincode.js",
+    "main": "productunithub.js",
     "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1",
-      "start": "node chaincode.js"
+      "start": "node productunithub.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
-      "fabric-shim": "unstable",
-      "yup":"0.24.1",
-      "winston":"2.4.1",
-      "lodash": "4.17.5"
+      "fabric-shim": "unstable"
     }
   }

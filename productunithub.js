@@ -17,8 +17,7 @@ limitations under the License.
 // This is a node-js version of example_02.go
 
 const shim          = require('fabric-shim');
-const helpers       = require("./utils/helpers");
-const datatransform = require("./utils/datatransform");
+const datatransform = require("./datatransform");
 
 // An log4js logger instance
 var logger = shim.newLogger('productUnitHub');
@@ -34,7 +33,8 @@ var Chaincode = class {
 
 	async Init(stub) {
 		logger.info('########### Init ###########');
-		let ret = stub.getFunctionAndParameters();
+		return shim.success();
+		/*let ret = stub.getFunctionAndParameters();
 
 		let args = ret.params;
 	
@@ -45,6 +45,7 @@ var Chaincode = class {
 				return shim.error(e);
 			}
 		}
+		*/
 	}
 
 	async Invoke(stub) {
