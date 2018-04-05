@@ -10,6 +10,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-      "fabric-shim": "unstable"
+      "fabric-shim": "unstable",
+      "lodash": "^4.17.5"
     }
   }
