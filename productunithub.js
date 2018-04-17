@@ -27,25 +27,56 @@ logger.level = 'info';
 
 var Chaincode = class {
 
-	generateKey(stub, component, subComponent, chassiId) {
-		return stub.createCompositeKey("", [component, subComponent, chassiId]);
+	generateKey(stub, component, subComponent, chassisId, workcellResourceId) {
+		logger.info('########### generateKey ###########');
+		logger.info('generateKey - chassisId         :    ' + chassisId);
+		logger.info('generateKey - component         :    ' + component);
+		logger.info('generateKey - subComponent      : ' + subComponent);
+		logger.info('generateKey - workcellResourceId: ' + workcellResourceId);
+		return stub.createCompositeKey("HYPER", [component, subComponent, chassisId, workcellResourceId]);
 	}
 
 	async Init(stub) {
 		logger.info('########### Init ###########');
-		return shim.success();
-		/*let ret = stub.getFunctionAndParameters();
 
-		let args = ret.params;
+	    
+	let processStepsString = '{\"ChassisId\": \"A819631\",\"Component\": \"CAB\",\"SubComponent\": \"TCAB\",\"ProductUnits\": \"productUnit\",\"BillOfProcessSteps\": [\r\n\t\t\t  {\t\"SequenceNo\": 1,\t\"PlannedProductionTime\": 0,\t\"WorkcellResource\": {\t  \"Id\": \"CTPP-01A\",\t  \"Name\": \"CTPP-01A\"\t},\t\"BillOfOperation\": [\t  {\t\t\"SequenceNo\": 1,\t\t\"InstructionTexts\": null,\t\t\"EquipmentRequirements\": null,\t\t\"OperationSteps\": [\t\t  {\t\t\t\"SequenceNo\": 1,\t\t\t\"InstructionTexts\": [\t\t\t  {\t\t\t\t\"SequenceNo\": 1,\t\t\t\t\"Text\": \"Bromscylinder 4 st, 24 Nm.\",\t\t\t\t\"RTF\": \"\"\t\t\t  }\t\t\t],\t\t\t\"EquipmentRequirements\": [\t\t\t  {\t\t\t\t\"SequenceNo\": 1,\t\t\t\t\"EquipmentType\": \"91\",\t\t\t\t\"Specifications\": [\t\t\t\t  {\t\t\t\t\t\"SequenceNo\": 1,\t\t\t\t\t\"Specification\": \"01_24Nm\",\t\t\t\t\t\"Value\": \"\",\t\t\t\t\t\"Quantity\": 4,\t\t\t\t\t\"Parameters\": null\t\t\t\t  }\t\t\t\t]\t\t\t  }\t\t\t],\t\t\t\"BillOfMaterial\": null,\t\t\t\"Description\": \"Bromscylinder 4 st, 24 Nm.\"\t\t  },\t\t  {\t\t\t\"SequenceNo\": 2,\t\t\t\"InstructionTexts\": [\t\t\t  {\t\t\t\t\"SequenceNo\": 2,\t\t\t\t\"Text\": \"Stoppskruv 1st, 24 Nm.\",\t\t\t\t\"RTF\": \"\"\t\t\t  }\t\t\t],\t\t\t\"EquipmentRequirements\": [\t\t\t  {\t\t\t\t\"SequenceNo\": 1,\t\t\t\t\"EquipmentType\": \"91\",\t\t\t\t\"Specifications\": [\t\t\t\t  {\t\t\t\t\t\"SequenceNo\": 1,\t\t\t\t\t\"Specification\": \"01_24Nm\",\t\t\t\t\t\"Value\": \"\",\t\t\t\t\t\"Quantity\": 1,\t\t\t\t\t\"Parameters\": null\t\t\t\t  }\t\t\t\t]\t\t\t  }\t\t\t],\t\t\t\"BillOfMaterial\": null,\t\t\t\"Description\": \"Stoppskruv 1st, 24 Nm.\"\t\t  }\t\t],\t\t\"Id\": \"001_63C0967-2D63-494D-88AC-F5D1BCE7127    _001\",\t\t\"CIN\": \"168336\",\t\t\"Description\": \"Dragningar pedalplatta\",\t\t\"OperationType\": \"AI\"\t  },\t  {\t\t\"SequenceNo\": 2,\t\t\"InstructionTexts\": null,\t\t\"EquipmentRequirements\": null,\t\t\"OperationSteps\": [\t\t  {\t\t\t\"SequenceNo\": 1,\t\t\t\"InstructionTexts\": null,\t\t\t\"EquipmentRequirements\": null,\t\t\t\"BillOfMaterial\": null,\t\t\t\"Description\": \"\"\t\t  }\t\t],\t\t\"Id\": \"001_63C0967-2D63-494D-88AC-F5D1BCE7127    _002\",\t\t\"CIN\": \"170767\",\t\t\"Description\": \"PC24 FH\/FM: Variantinformation\",\t\t\"OperationType\": \"AI\"\t  },\t  {\t\t\"SequenceNo\": 3,\t\t\"InstructionTexts\": null,\t\t\"EquipmentRequirements\": null,\t\t\"OperationSteps\": [\t\t  {\t\t\t\"SequenceNo\": 3,\t\t\t\"InstructionTexts\": null,\t\t\t\"EquipmentRequirements\": null,\t\t\t\"BillOfMaterial\": [\t\t\t  {\t\t\t\t\"PartNo\": \"82424670\",\t\t\t\t\"Quantity\": 1,\t\t\t\t\"Description\": \"PEDALPLATTA RHD WITHOUT C\"\t\t\t  }\t\t\t],\t\t\t\"Description\": \"PEDALPLATTA RHD WITHOUT C\"\t\t  }\t\t],\t\t\"Id\": \"001_63C0967-2D63-494D-88AC-F5D1BCE7127    _003\",\t\t\"CIN\": \"163733\",\t\t\"Description\": \"PC24: Pedal Platta\",\t\t\"OperationType\": \"II\"\t  },\t  {\t\t\"SequenceNo\": 4,\t\t\"InstructionTexts\": null,\t\t\"EquipmentRequirements\": null,\t\t\"OperationSteps\": [\t\t  {\t\t\t\"SequenceNo\": 3,\t\t\t\"InstructionTexts\": null,\t\t\t\"EquipmentRequirements\": null,\t\t\t\"BillOfMaterial\": [\t\t\t  {\t\t\t\t\"PartNo\": \"82424676\",\t\t\t\t\"Quantity\": 3,\t\t\t\t\"Description\": \"AXELSTYRNING\"\t\t\t  }\t\t\t],\t\t\t\"Description\": \"AXELSTYRNING\"\t\t  }\t\t],\t\t\"Id\": \"001_63C0967-2D63-494D-88AC-F5D1BCE7127    _004\",\t\t\"CIN\": \"163732\",\t\t\"Description\": \"PC24:  Axelstyrning\",\t\t\"OperationType\": \"II\"\t  },\t  {\t\t\"SequenceNo\": 5,\t\t\"InstructionTexts\": [\t\t  {\t\t\t\"SequenceNo\": 0,\t\t\t\"Text\": \"Gleitmo, till insidan av axeln f\uFFFDr bromspedal b\uFFFDda sidor.\",\t\t\t\"RTF\": null\t\t  }\t\t],\t\t\"EquipmentRequirements\": null,\t\t\"OperationSteps\": [\t\t  {\t\t\t\"SequenceNo\": 4,\t\t\t\"InstructionTexts\": null,\t\t\t\"EquipmentRequirements\": null,\t\t\t\"BillOfMaterial\": [\t\t\t  {\t\t\t\t\"PartNo\": \"82424671\",\t\t\t\t\"Quantity\": 1,\t\t\t\t\"Description\": \"AXEL\"\t\t\t  }\t\t\t],\t\t\t\"Description\": \"AXEL\"\t\t  }\t\t],\t\t\"Id\": \"001_63C0967-2D63-494D-88AC-F5D1BCE7127    _005\",\t\t\"CIN\": \"163734\",\t\t\"Description\": \"PC24: Montera broms pedal och Gleitmo\",\t\t\"OperationType\": \"II\"\t  }\t],\t\"Id\": \"001_63C0967-2D63-494D-88AC-F5D1BCE7127\",\t\"Name\": \"FBM-fste Pedalhllare\"\r\n\t\t\t  }\r\n\t\t\t]\r\n\t\t  }';
+
+			
+
+		try{
 	
-		if (args.length === 0) {
+			if(typeof processStepsString == 'undefined' || processStepsString == null || !processStepsString) {
+				return shim.error('processStepsContainer undefined or null');
+			}
+			let processStepsContainer = JSON.parse(processStepsString);
+			logger.debug('Init - PRE FOR ');
+			logger.debug('Init - processStepsContainer.ChassisId         : ' + processStepsContainer.ChassisId);
+			logger.debug('Init - processStepsContainer.Component         : ' + processStepsContainer.Component);
+			logger.debug('Init - processStepsContainer.SubComponent      : ' + processStepsContainer.SubComponent);
+			logger.debug('Init - processStepsContainer.ProductUnits      : ' + processStepsContainer.ProductUnits);
+			logger.debug('Init - processStepsContainer.WorkcellResourceId: ' + processStepsContainer.BillOfProcessSteps[0].WorkcellResource.Id);
+
+
+			var key = this.generateKey(stub, processStepsContainer.Component,
+										  							   processStepsContainer.SubComponent,
+																			 processStepsContainer.ChassisId,
+																			 processStepsContainer.BillOfProcessSteps[0].WorkcellResource.Id);
+			logger.info('Init - key	 : ' + key );
+			// Write the state to the ledger
 			try {
-				return shim.success();
+				await stub.putState(key, Buffer.from(processStepsString));
+				logger.info('Init - Success!');
+				return shim.success(Buffer.from('Global Store succeed'));
 			} catch (e) {
+				logger.info('Init - error: ' + e);
 				return shim.error(e);
 			}
+			
+		} catch (e) {
+			logger.info('Init	- Parse error: ' + e);
+			return shim.error('Parse error found' + e);
 		}
-		*/
 	}
 
 	async Invoke(stub) {
@@ -54,7 +85,7 @@ var Chaincode = class {
 		let fcn  = ret.fcn;
 		let args = ret.params;
 
-		logger.info('Invoke fcn' + fcn);
+		logger.info('Invoke function: ' + fcn);
 
 		/* methods GET */
 
@@ -89,6 +120,7 @@ var Chaincode = class {
 	/* The getProcessStepRouting method is called to extract all chassisDTOs by Component and subComponent */ 
  
 	async getProcessStepRouting(stub, args) {
+		logger.info('########### getProcessStepRouting ###########');
 		if (args.length != 2) {
 			return shim.error('Incorrect number of arguments. Expecting 2, function followed by JSON parameters');
 		}
@@ -124,39 +156,48 @@ var Chaincode = class {
 	/* The getProcessStep method is called to extract the chassisDTO by chassisId, component, subComponent and workCellResourceId (eventually) */
 
 	async getProcessStep(stub, args) {
+		logger.info('########### getProcessStep ###########');
 		if (args.length < 3 || args.length > 4) {
-			return shim.error('Incorrect number of arguments. Expecting 3 or 4, function followed by JSON parameters');
+			return shim.error('Incorrect number of arguments. Expecting 3 or 4, function followed by JSON parameters: ' + args.length);
 		}
 		let jsonResp; 
-		/* Key is composed by: chassisId_component_subComponent_workCellResourceId */
+		/* Key is composed by: component subComponent chassisId workCellResourceId */
 		if (args[3]) {
-			const key = args[0] + "_" + args[1] + "_" + args[2]+ "_" + args[3];
-			let   chassisDTO;
-			
+			var key = this.generateKey(stub, args[1], args[2], args[0], args[3]);
+			logger.info('getProcessStep - key: ' + key);
+			var chassisDTO;
+
 			// Get the state from the ledger
 			try {
-				let chassisDTObytes = await stub.getState(key);
+				var chassisDTObytes = await stub.getState(key);
+				logger.debug('getProcessStep - chassisDTObytes: ' + chassisDTObytes);
 				if (!chassisDTObytes) {
 					return shim.error('chassisDTO ' + key + ' not found');
 				}
 				chassisDTO = chassisDTObytes.toString();
+				logger.debug('getProcessStep - chassisDTO: ' + chassisDTO);
 			} catch (e) {
-				return shim.error('Failed to get state with key: ' + key);
+				logger.info('getProcessStep - ERROR CATCH: ' + e);
+				return shim.error('getProcessStep - Failed to get state with key: ' + key);
 			}
 			jsonResp = chassisDTO;
+
 		}
 		else {
-			/* Key partial is composed by: chassisId_component_subComponent */
-			const keyPar 			=  args[0] + "_" + args[1] + "_" + args[2];
+			/* Key partial is composed by: component subComponent chassisId */
+			var keyPar = this.generateKey(stub, args[1], args[2], args[0]);
+			logger.info('getProcessStep - keyPar: ' + keyPar);
 			const iterator 			= await this.stub.getStateByPartialCompositeKey("",keyPar);
+			logger.info('getProcessStep - iterator: ' + iterator);
 			const listOfChassisDTO 	= datatransform.Transform.iteratorToKVList(iterator);
+			logger.info('getProcessStep - listOfChassisDTO: ' + listOfChassisDTO);
 			if (!listOfChassisDTO) {
 				return shim.error('listOfChassisDTO ' + keyPar + ' not found');
 			}
 			jsonResp = listOfChassisDTO;
 		}
 		
-		logger.info('Query Response:%s\n', JSON.stringify(jsonResp));
+		logger.info('getProcessStep - Query Response:%s\n', JSON.stringify(jsonResp));
 		return shim.success(Buffer.from(chassisDTO.toString()));
 	}
 
@@ -164,6 +205,7 @@ var Chaincode = class {
 	/* The getProcessStepResult method is called to extract the chassisDTO by chassisId, component, subComponent and workCellResourceId (eventually) */
 
 	async getProcessStepResult(stub, args) {
+		logger.info('########### getProcessStepResult ###########');
 		if (args.length < 3 || args.length > 4) {
 			return shim.error('Incorrect number of arguments. Expecting 3 or 4, function followed by JSON parameters');
 		}
@@ -205,7 +247,7 @@ var Chaincode = class {
 	/* The storeProcessSteps method is called to store all chassisDTOs with Component and subComponent */ 
 
 	async storeProcessStepRouting(stub, args) {
-
+		logger.info('########### storeProcessStepRouting ###########');
 		let processStepsContainer;
 
 		/* Number arguments 1: (function , JSON parameters) */
@@ -225,13 +267,13 @@ var Chaincode = class {
 			}
 			for (let value of processStepsContainer) {
 				let chassisDTO;
-				chassisDTO.chassiId           = value.ChassisId;	
-				chassisDTO.component          = value.Component;
-				chassisDTO.subComponent       = value.SubComponent;
-				chassisDTO.productUnits 	  = value.ProductUnits;
-				chassisDTO.billOfProcessSteps = value.BillOfProcessSteps;	
+				chassisDTO.chassisId           = value.ChassisId;	
+				chassisDTO.component           = value.Component;
+				chassisDTO.subComponent        = value.SubComponent;
+				chassisDTO.productUnits 	     = value.ProductUnits;
+				chassisDTO.billOfProcessSteps  = value.BillOfProcessSteps;	
 
-				const key = generateKey(stub, chassisDTO.component,chassisDTO.subComponent,chassisDTO.chassiId,chassisDTO.productUnits);
+				const key = this.generateKey(stub, chassisDTO.component,chassisDTO.subComponent,chassisDTO.chassisId,chassisDTO.productUnits);
 				// Write the state to the ledger
 				try {
 					await stub.putState(key, Buffer.from(chassisDTO.toString()));
@@ -264,6 +306,7 @@ var Chaincode = class {
 	/* The storeProcessStepResults method is called to update the chassisDTO (in the part of Results) with chassisId, Component and subComponent */ 
 	
 	async storeProcessStepResult(stub, args) {
+		logger.info('########### storeProcessStepResult ###########');
 		let processStepResultContainer;
 
 		/* TODO parameter args[0] is composed by: 
@@ -292,10 +335,10 @@ var Chaincode = class {
 			   return shim.error('processStepDTO undefined or null or not object');
 			}
 			try {
-				const key = generateKey(stub, 
+				const key = this.generateKey(stub, 
 						processStepResultDTO.component,
 						processStepResultDTO.subComponent,
-						processStepResultDTO.chassiId,
+						processStepResultDTO.chassisId,
 						processStepResultDTO.workCellResourceId);
 
 				await stub.putState(key, Buffer.from(processStepResultDTO.toString()));
@@ -326,3 +369,4 @@ var Chaincode = class {
 };
 
 shim.start(new Chaincode());
+

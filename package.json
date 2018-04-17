@@ -11,6 +11,6 @@
     "license": "ISC",
     "dependencies": {
       "fabric-shim": "unstable",
-      "lodash": "^4.17.5"
+      "lodash":"4.17.5"
     }
   }
