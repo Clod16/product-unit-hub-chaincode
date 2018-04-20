@@ -129,17 +129,16 @@ var Chaincode = class {
 		if (args.length != 2) {
 			return shim.error('Incorrect number of arguments. Expecting 2, function followed by JSON parameters');
 		}
-		let iterator 			= await stub.getStateByPartialCompositeKey("HYPER",[args[0], args[1]]);
-		let listOfChassisDTO 	= await datatransform.Transform.iteratorToKVList(iterator);
+
+		const keyPar = args[0] + "_" + args[1];
+		const iterator = await this.stub.getStateByPartialCompositeKey("",keyPar);
+
+		const listOfChassisDTO = datatransform.Transform.iteratorToKVList(iterator);
 		
-		if (!listOfChassisDTO) {
-			return shim.error('listOfChassisDTO with key partial: ' + keyPar + ' not found');
-		}
+		let jsonResp =listOfChassisDTO;
+		logger.info('Query Response:%s\n', JSON.stringify(jsonResp));
 
-		let jsonResp = listOfChassisDTO;
-
-		logger.info('getProcessStepRouting - Query Response:%s\n', JSON.stringify(jsonResp));
-		return shim.success(Buffer.from(jsonResp));
+		return shim.success(Buffer.from(listOfChassisDTO.toString()));
 	}
 
 
@@ -215,38 +214,34 @@ var Chaincode = class {
 		let jsonResp; 
 		/* Key is composed by: chassisId_component_subComponent_workCellResourceId */
 		if (args[3]) {
-			let key = this.generateKey(stub, args[1], args[2], args[0], args[3]);
-			logger.info('getProcessStepResult - key: ' + key);
+			const key = args[0] + "_" + args[1] + "_" + args[2]+ "_" + args[3];
 			let   processStepResultDTO;
 			
 			// Get the state from the ledger
 			try {
 				let processStepResultDTObytes = await stub.getState(key);
-				logger.info('getProcessStepResult - processStepResultDTObytes: ' + processStepResultDTObytes);
 				if (!processStepResultDTObytes) {
 					return shim.error('processStepResultDTO ' + key + ' not found');
 				}
 				processStepResultDTO = processStepResultDTObytes.toString();
-				logger.info('getProcessStepResult - processStepResultDTO letto: ' + JSON.stringify(processStepResultDTO));
 			} catch (e) {
-				logger.info('getProcessStepResult - ERROR CATCH: ' + e);
 				return shim.error('Failed to get state with key: ' + key);
 			}
 			jsonResp = processStepResultDTO;
 		}
 		else {
 			/* Key partial is composed by: component_subComponent_chassisId */
-			let iterator 				   = await stub.getStateByPartialCompositeKey("HYPER",[args[1], args[2], args[0]]);
-			let listOfProcessStepResultDTO = await datatransform.Transform.iteratorToKVList(iterator);
-			logger.debug('getProcessStep - listOfChassisDTO: ' + JSON.stringify(listOfProcessStepResultDTO));
-			
-			if (!listOfProcessStepResultDTO) {
+			const keyPar 						=  args[0] + "_" + args[1] + "_" + args[2];
+			const iterator 						= await this.stub.getStateByPartialCompositeKey("",keyPar);
+			const listOfProcessStepResultDTO 	= datatransform.Transform.iteratorToKVList(iterator);
+			if (!listOfProcessStepResultDTObytes) {
 				return shim.error('listOfProcessStepResultDTO ' + key + ' not found');
 			}
 			jsonResp = listOfProcessStepResultDTO;
 		}
-		logger.info('getProcessStepResult - Query Response:%s\n', JSON.stringify(jsonResp));
-		return shim.success(Buffer.from(jsonResp));
+		
+		logger.info('Query Response:%s\n', JSON.stringify(jsonResp));
+		return shim.success(Buffer.from(processStepResultDTO.toString()));
 	}
 
 	/* methods POST */
@@ -256,17 +251,19 @@ var Chaincode = class {
 	async storeProcessStepRouting(stub, args) {
 		logger.info('########### storeProcessStepRouting ###########');
 		
+
 		/* Number arguments 1: (function , JSON parameters) */
 		/* if (args.length != 1) {
 			return shim.error('Incorrect number of arguments. Expecting 1, function followed by JSON parameters');
 		} */
 
 		logger.debug('storeProcessStepRouting - args	 : ' + args );
+		let processStepsContainer = JSON.parse(args);
+	
+		if(typeof processStepsContainer == 'undefined' || processStepsContainer == null || typeof processStepsContainer != 'object') {
+			return shim.error('processStepsContainer undefined or null or not object');
+		}
 		try{
-			let processStepsContainer = JSON.parse(args);
-			if(typeof processStepsContainer == 'undefined' || processStepsContainer == null || typeof processStepsContainer != 'object') {
-				return shim.error('processStepsContainer undefined or null or not object');
-			}
 			for (let value of processStepsContainer) {
 				logger.debug('storeProcessStepRouting - value.ChassisId   : '+ value.ChassisId);
 				logger.debug('storeProcessStepRouting - value.Component   : '+ value.Component);
@@ -327,7 +324,8 @@ var Chaincode = class {
 	
 	async storeProcessStepResult(stub, args) {
 		logger.info('########### storeProcessStepResult ###########');
-		
+		let processStepResultContainer = JSON.parse(args);
+
 		/* TODO parameter args[0] is composed by: 
 		{Component         		 : component,
 		 SubComponent            : subComponent,
@@ -341,43 +339,53 @@ var Chaincode = class {
 			return shim.error('Incorrect number of arguments. Expecting 1, function followed by JSON parameters');
 		}
 	*/	
+		let processStepResultStrings = args;	
+		if(typeof processStepResultContainer == 'undefined' || processStepResultContainer == null || typeof processStepResultContainer != 'object') {
+			return shim.error('processStepResultsContainer undefined or null');
+		}
 		try{
-			let processStepResultContainer = JSON.parse(args);
-			if(typeof processStepResultContainer == 'undefined' || processStepResultContainer == null || typeof processStepResultContainer != 'object') {
-				return shim.error('processStepResultsContainer undefined or null');
-			}
+
 			for (let value of processStepResultContainer) {
 				logger.debug('storeProcessStepResult - INTO FOR');
 				logger.debug('storeProcessStepResult - value.ChassisId         : '+ value.ChassisId);
 				logger.debug('storeProcessStepResult - value.Component         : '+ value.Component);
 				logger.debug('storeProcessStepResult - value.SubComponent      : '+ value.SubComponent);
-				logger.debug('storeProcessStepResult - value.workCellResourceId: '+ value.workCellResourceId);
+				logger.debug('storeProcessStepResult - value.ProductUnits      : '+ value.ProductUnits);
 				
-				let processStepResultDTO 			        = value;
-					processStepResultDTO.chassisId          = value.ChassisId;	
-					processStepResultDTO.component          = value.Component;
-					processStepResultDTO.subComponent       = value.SubComponent;
-					processStepResultDTO.workCellResourceId = value.WorkCellResourceId;
-					processStepResultDTO.operationResults 	= value.OperationResults;
+				let processStepResultDTO;
+					processStepResultDTO.chassisId    = value.ChassisId;	
+					processStepResultDTO.component    = value.Component;
+					processStepResultDTO.subComponent = value.SubComponent;
+					processStepResultDTO.productUnits = value.ProductUnits;
+				
+				for (let bops of value.BillOfProcessSteps) {
+					logger.debug('storeProcessStepResult - bops.WorkcellResource.Id: '+ bops.WorkcellResource.Id);
 
-				let key = this.generateKey(stub, value.Component,
-												 value.SubComponent,
-												 value.ChassisId,
-												 value.workCellResourceId);
+					let key = this.generateKey(stub, value.Component,
+													 value.SubComponent,
+													 value.ChassisId,
+													 bops.WorkcellResource.Id);
+					logger.debug('storeProcessStepResult - key	     : ' + key );
+					processStepResultDTO.billOfProcessSteps  = bops;
+				
+					let processStepResultDTOstr = JSON.stringify(processStepResultDTO);
+					
+					// Write the state to the ledger
+					try {
+						await stub.putState(key, Buffer.from(processStepResultDTOstr));
+						logger.info('storeProcessStepRouting - KEY STORED	 : ' + key );
+					
 
-			 	try {
-					await stub.putState(key, Buffer.from(JSON.stringify(processStepResultDTO)));
-					logger.info('storeProcessStepResult - KEY STORED	 : ' + key );
-												
-							
 					} catch (e) {
 						return shim.error(e);
-				}	
+					}
+				}
 			}
 		} catch (e) {
 			return shim.error('Parse error found');
 		}
 	}
+
 };
 
 shim.start(new Chaincode());
