@@ -23,7 +23,7 @@ const datatransform = require("./utils/datatransform");
 var logger = shim.newLogger('productUnitHub');
 // The logger level can also be set by environment variable 'CORE_CHAINCODE_LOGGING_SHIM'
 // to CRITICAL, ERROR, WARNING, DEBUG
-logger.level = 'info';
+logger.level = 'debug';
 
 var Chaincode = class {
 
@@ -267,32 +267,27 @@ var Chaincode = class {
 			if(typeof processStepsContainer == 'undefined' || processStepsContainer == null || typeof processStepsContainer != 'object') {
 				return shim.error('processStepsContainer undefined or null or not object');
 			}
-			for (let value of processStepsContainer) {
-				logger.debug('storeProcessStepRouting - value.ChassisId   : '+ value.ChassisId);
-				logger.debug('storeProcessStepRouting - value.Component   : '+ value.Component);
-				logger.debug('storeProcessStepRouting - value.SubComponent: '+ value.SubComponent);
-				logger.debug('storeProcessStepRouting - value.ProductUnits: '+ value.ProductUnits);
+			for (let processStep of processStepsContainer) {
+				logger.debug('storeProcessStepRouting - processStep.ChassisId   : '+ processStep.ChassisId);
+				logger.debug('storeProcessStepRouting - processStep.Component   : '+ processStep.Component);
+				logger.debug('storeProcessStepRouting - processStep.SubComponent: '+ processStep.SubComponent);
+				logger.debug('storeProcessStepRouting - processStep.ProductUnits: '+ processStep.ProductUnits);
+				logger.debug('storeProcessStepRouting - WorkcellResourceId      : '+ processStep.BillOfProcessSteps.WorkcellResource.Id);
 				
-				let chassisDTO = value;
-					chassisDTO.chassisId           = value.ChassisId;	
-					chassisDTO.component           = value.Component;
-					chassisDTO.subComponent        = value.SubComponent;
-					chassisDTO.productUnits 	   = value.ProductUnits; 
-				
-				for (let bops of value.BillOfProcessSteps) {
-					logger.debug('storeProcessStepRouting - bops.WorkcellResource.Id: '+ bops.WorkcellResource.Id);
+				if (typeof processStep.BillOfProcessSteps != 'undefined' && processStep.BillOfProcessSteps != null) {
+					for (let bops of processStep.BillOfProcessSteps) {
+						logger.debug('storeProcessStepRouting - bops.WorkcellResource.Id: '+ bops.WorkcellResource.Id);
 
-					let key = this.generateKey(stub, value.Component,
-													 value.SubComponent,
-													 value.ChassisId,
-													 bops.WorkcellResource.Id);
-					logger.debug('storeProcessStepRouting - key	     : ' + key );
-					chassisDTO.billOfProcessSteps  = bops;
+						let key = this.generateKey(stub, processStep.Component,
+														 processStep.SubComponent,
+														 processStep.ChassisId,
+														 bops.WorkcellResource.Id);
+						logger.debug('storeProcessStepRouting - key	     : ' + key );
 					
-					// Write the state to the ledger
-					try {
-						await stub.putState(key, Buffer.from(JSON.stringify(chassisDTO)));
-						logger.info('storeProcessStepRouting - KEY STORED	 : ' + key );
+						// Write the state to the ledger
+						try {
+							await stub.putState(key, Buffer.from(JSON.stringify(processStep)));
+							logger.info('storeProcessStepRouting - KEY STORED	 : ' + key );
 					/*
 						let tmap = stub.getTransient();
 						logger.info('Invoke move transient: ' + tmap);
@@ -309,8 +304,9 @@ var Chaincode = class {
 						  return shim.success(rb);}
 					} 
 						return shim.success(Buffer.from('Global Store succeed')); */
-					} catch (e) {
-					return shim.error(e);
+						} catch (e) {
+						return shim.error(e);
+						}
 					}
 				}
 			}
@@ -346,27 +342,20 @@ var Chaincode = class {
 			if(typeof processStepResultContainer == 'undefined' || processStepResultContainer == null || typeof processStepResultContainer != 'object') {
 				return shim.error('processStepResultsContainer undefined or null');
 			}
-			for (let value of processStepResultContainer) {
+			for (let processStepResult of processStepResultContainer) {
 				logger.debug('storeProcessStepResult - INTO FOR');
-				logger.debug('storeProcessStepResult - value.ChassisId         : '+ value.ChassisId);
-				logger.debug('storeProcessStepResult - value.Component         : '+ value.Component);
-				logger.debug('storeProcessStepResult - value.SubComponent      : '+ value.SubComponent);
-				logger.debug('storeProcessStepResult - value.workCellResourceId: '+ value.workCellResourceId);
-				
-				let processStepResultDTO 			        = value;
-					processStepResultDTO.chassisId          = value.ChassisId;	
-					processStepResultDTO.component          = value.Component;
-					processStepResultDTO.subComponent       = value.SubComponent;
-					processStepResultDTO.workCellResourceId = value.WorkCellResourceId;
-					processStepResultDTO.operationResults 	= value.OperationResults;
+				logger.debug('storeProcessStepResult - processStepResult.ChassisId         : '+ processStepResult.ChassisId);
+				logger.debug('storeProcessStepResult - processStepResult.Component         : '+ processStepResult.Component);
+				logger.debug('storeProcessStepResult - processStepResult.SubComponent      : '+ processStepResult.SubComponent);
+				logger.debug('storeProcessStepResult - processStepResult.workCellResourceId: '+ processStepResult.workCellResourceId);
 
-				let key = this.generateKey(stub, value.Component,
-												 value.SubComponent,
-												 value.ChassisId,
-												 value.workCellResourceId);
+				let key = this.generateKey(stub, processStepResult.Component,
+												 processStepResult.SubComponent,
+												 processStepResult.ChassisId,
+												 processStepResult.workCellResourceId);
 
 			 	try {
-					await stub.putState(key, Buffer.from(JSON.stringify(processStepResultDTO)));
+					await stub.putState(key, Buffer.from(JSON.stringify(processStepResult)));
 					logger.info('storeProcessStepResult - KEY STORED	 : ' + key );
 												
 							
