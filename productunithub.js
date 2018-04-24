@@ -180,7 +180,7 @@ var Chaincode = class {
 				if (!chassisDTObytes) {
 					return shim.error('chassisDTO ' + key + ' not found');
 				}
-				chassisDTO = chassisDTObytes.toString();
+				chassisDTO = datatransform.Transform.bufferToObject(chassisDTObytes);
 				logger.info('getProcessStep - chassisDTO letto: ' + JSON.stringify(chassisDTO));
 			} catch (e) {
 				logger.info('getProcessStep - ERROR CATCH: ' + e);
@@ -226,7 +226,8 @@ var Chaincode = class {
 				if (!processStepResultDTObytes) {
 					return shim.error('processStepResultDTO ' + key + ' not found');
 				}
-				processStepResultDTO = processStepResultDTObytes.toString();
+				processStepResultDTO = datatransform.Transform.bufferToObject(processStepResultDTObytes);
+				//processStepResultDTObytes.toString();
 				logger.info('getProcessStepResult - processStepResultDTO letto: ' + JSON.stringify(processStepResultDTO));
 			} catch (e) {
 				logger.info('getProcessStepResult - ERROR CATCH: ' + e);
