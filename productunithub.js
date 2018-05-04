@@ -236,7 +236,7 @@ var Chaincode = class {
 														 workcellResourceId);
 						// Write the state to the ledger
 						try {
-							await stub.putState(key, Buffer.from(JSON.stringify(processStep)));
+							await stub.putState(key, Buffer.from(JSON.stringify(chassisDTO)));
 							logger.info('storeProcessStepRouting - KEY STORED Successfull: ' + key);
 						} catch (e) {
 							logger.info('storeProcessStepRouting - ERROR CATCH (putState): ' + e);
